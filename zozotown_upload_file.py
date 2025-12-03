@@ -61,6 +61,7 @@ def zozotown_upload_file():
     ├─ is_wsl()                  起動環境により設定値変更
     ├─ load_password()           パスワードをファイルから取得
     ├─ write_log()               ログ出力を行う
+    ├─ print_type()              ログを日付付きでprint出力を行う
     ├─ read_excel()              Excel読み込み
     ├─ find_upload_file()        テキスト→CSV変換
     ├─ selenium_upload()         アップロード（失敗なら例外）
@@ -100,7 +101,7 @@ def zozotown_upload_file():
     df = find_upload_file(df)
 
     if Up_list_cnt <= 0:
-        print("🔸 アップロード対象ファイルがありません")
+        print_type("🔸 アップロード対象ファイルがありません")
         write_log("🔸 アップロード対象ファイルがありません")
         return
     
@@ -109,14 +110,14 @@ def zozotown_upload_file():
     if success:
         update_excel_result(df)
 
-        print(f"Error_flag={Error_flag}")
+        print_type(f"Error_flag={Error_flag}")
 
         if Error_flag != 0:
             update_excel_coller()       # エラーのステータスを色付け
             write_log("アップロードエラー発生")
 
 
-    print("☑ 全処理終了")
+    print_type("☑ 全処理終了")
 
 
 # ==============================
@@ -135,7 +136,7 @@ def read_excel():
         # Excel のシート名一覧を取得
         all_sheets = pd.ExcelFile(EXCEL_PATH).sheet_names
         if TARGET_SHEET not in all_sheets:
-            print(f"⚠ シート '{TARGET_SHEET}' が Excel ファイルに存在しません")
+            print_type(f"⚠ シート '{TARGET_SHEET}' が Excel ファイルに存在しません")
             write_log(f"⚠ シート '{TARGET_SHEET}' が Excel ファイルに存在しません")
             return None
 
@@ -148,12 +149,12 @@ def read_excel():
         return df
 
     except FileNotFoundError:
-        print(f"❌ Excel ファイル '{EXCEL_PATH}' が存在しません")
+        print_type(f"❌ Excel ファイル '{EXCEL_PATH}' が存在しません")
         write_log(f"❌ Excel ファイル '{EXCEL_PATH}' が存在しません")
         return None
 
     except Exception as e:
-        print(f"❌ Excel 読み込み時にエラー: {e}")
+        print_type(f"❌ Excel 読み込み時にエラー: {e}")
         write_log(f"❌ Excel 読み込み時にエラー: {e}")
         return None
 
@@ -173,7 +174,7 @@ def find_upload_file(df):
         # print(row.to_dict())                 # 行の内容（辞書形式）
 
         if pd.to_datetime(row["日時"]) <= now and str(row["処理結果"]) == "予約中":
-            print(f">> {row.to_dict()}")  # ■テスト
+            # print_type(f">> {row.to_dict()}")  # ■テスト
 
             txt_name = f"{row['テキストファイル名']}.txt"
             txt_name = txt_name.strip()   # 改行や空白を除去
@@ -198,7 +199,7 @@ def find_upload_file(df):
                 write_log(f"エラー ファイル無し: {txt_path}")
 
 
-            print(f'>> {df.at[index, "処理結果"]}')  # ■テスト
+            # print_type(f'>> {df.at[index, "処理結果"]}')  # ■テスト
 
     return df
 
@@ -211,7 +212,7 @@ def selenium_upload(df):
     global EXCEL_PATH, TEXT_DIR
     global PASSWORD_FILE, FORM_PASS
 
-    print("Selenium開始:")
+    print_type("Selenium開始:")
 
     options = Options()
     options.add_argument("--lang=ja-JP")
@@ -239,7 +240,7 @@ def selenium_upload(df):
             file_path = Up_list_name[i]
             excel_idx = Up_list_index[i]
 
-            print(f"アップロード　開始: {file_path}／{excel_idx}")     # テスト
+            print_type(f"アップロード　開始: {file_path}／{excel_idx}")     # テスト
 
             time.sleep(3)
 
@@ -275,21 +276,21 @@ def selenium_upload(df):
 
                 # テキスト取得
                 result_text = result_element.text
-                print("取得した結果:", result_text)
+                print_type(f"取得した結果:{result_text}")
 
                 # 正常登録件数を抽出
                 match = re.search(r"正常登録件数：(\d+)件", result_text)
                 if match:
                     count = int(match.group(1))
-                    print("登録件数 =", count)
+                    print_type(f"登録件数 ={count}")
                     write_log(f"登録件数 = {count}")
                 else:
-                    print("件数を取得できませんでした")
+                    print_type("件数を取得できませんでした")
                     write_log("件数を取得できませんでした")
 
 
                 time.sleep(3)  # Upload完了待機
-                print(f"アップロード　件数取得: {file_path}")
+                print_type(f"アップロード　件数取得: {file_path}")
 
                 if file_path.lower().endswith("on.txt"):
                     df.at[excel_idx, "ON登録数"] = count
@@ -308,7 +309,7 @@ def selenium_upload(df):
                     write_log("ステータスを「処理済み」にしました")
 
             except Exception as e:
-                print(f"アップロード失敗: {file_path}, エラー: {e}")
+                print_type(f"アップロード失敗: {file_path}, エラー: {e}")
                 df.at[excel_idx, "処理結果"] = "エラー"
                 df.at[excel_idx, "エラー情報"] = str(f"エラー アップロード失敗: {e}")
                 Error_flag = -1
@@ -316,12 +317,12 @@ def selenium_upload(df):
 
 
         time.sleep(3)
-        print("アップロード完了:", file_path)
+        print_type("アップロード完了:", file_path)
         write_log(f"アップロード完了: {file_path}")
         return True
 
     except Exception as e:
-        print("Selenium エラー:", e)
+        print_type("Selenium エラー:", e)
         write_log(f"Selenium エラー: {e}")
         return False
 
@@ -348,22 +349,22 @@ def update_excel_result(df, retries=3, wait_seconds=2):
                                 mode="a", if_sheet_exists="overlay") as writer:
                 df.to_excel(writer, sheet_name=TARGET_SHEET, index=False, startrow=STARTROW+1, header=False)
             
-            print("✅ Excel更新完了")
+            print_type("✅ Excel更新完了")
             write_log("✅ Excel更新完了")
             return  # 成功したら抜ける
 
         except OSError as e:
             attempt += 1
-            print(f"⚠️ Excelファイルがロック中またはアクセス不可: {e}")
+            print_type(f"⚠️ Excelファイルがロック中またはアクセス不可: {e}")
             if attempt < retries:
-                print(f"⏳ {wait_seconds}秒後にリトライします... ({attempt}/{retries})")
+                print_type(f"⏳ {wait_seconds}秒後にリトライします... ({attempt}/{retries})")
                 time.sleep(wait_seconds)
             else:
-                print("❌ Excelの更新に失敗しました。処理を中止します。")
+                print_type("❌ Excelの更新に失敗しました。処理を中止します。")
                 write_log("❌ Excelの更新に失敗しました。処理を中止します。")
                 raise  # リトライしてもダメなら例外を上げる
 
-    print("Excel更新完了")
+    print_type("Excel更新完了")
     write_log("Excel更新完了")
 
 # ==============================
@@ -394,7 +395,7 @@ def update_excel_coller():
     # 保存
     wb.save(EXCEL_PATH)
     wb.close()
-    print("🎯 Excelステータスの色変更 完了")
+    print_type("🎯 Excelステータスの色変更 完了")
 
 
 # ==============================
@@ -427,7 +428,17 @@ def write_log(message):
             f.write(f"[{now}] -- {message}\n")
 
     except Exception as e:
-        print("ログ書き込みエラー:", e)
+        print_type(f"ログ書き込みエラー:{e}")
+
+# ==============================
+#   ログ出力 (環境別)
+# ==============================
+
+def print_type(message):
+    
+    now = datetime.now().strftime("%H:%M:%S")
+    print(f"[{now}] -- {message}\n")
+
 
 if __name__ == "__main__":
     zozotown_upload_file()
