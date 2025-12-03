@@ -11,6 +11,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
+from selenium.webdriver.chrome.service import Service   # 自動Download
+from selenium.webdriver.chrome.options import Options   # 自動Download
+from webdriver_manager.chrome import ChromeDriverManager    # 自動Download
+
 import platform
 from openpyxl import load_workbook
 from openpyxl.styles import Font
@@ -216,7 +220,11 @@ def selenium_upload(df):
     if not is_wsl():  # 本番環境（VPS Ubuntu）
         options.add_argument("--headless")
 
-    driver = webdriver.Chrome(options=options)
+    # ChromeDriver を自動で取得
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+
+    # driver = webdriver.Chrome(options=options)
 
     try:
         driver.get(ZOZO_URL)
