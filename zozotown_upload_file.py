@@ -23,6 +23,9 @@ import re
 
 from datetime import datetime
 
+import requests
+import json
+
 
 # ==============================
 #  設定
@@ -51,6 +54,12 @@ STARTROW =  2     # EXcel 項目位置（日時	テキストファイ、、、�
 
 LOG_FILE = ""
 
+# 長期トークン LINE
+ACCESS_TOKEN = "5/OgaSQMXxP2DZJg6t7sTFSLlolggNd2zPjsWKd5xjosuYUXuudj7I8KZmZNukWd5jmC5P9+wk6MSojM00MhUrWisjCaufOT0nnf3+K18oixTx7C77I8YydA/0TPCRCx7lDQK9Y48zrpNIoIol+r5wdB04t89/1O/w1cDnyilFU="
+
+# 送信先ユーザーID LINE
+USER_ID = "U615273c685475d75e9d789225d59cb5e"       # onishi
+
 
 # ==============================
 # Main（拡張OK）
@@ -62,6 +71,7 @@ def zozotown_upload_file():
     ├─ load_password()           パスワードをファイルから取得
     ├─ write_log()               ログ出力を行う
     ├─ print_type()              ログを日付付きでprint出力を行う
+    ├─ line_message()            特定のアカウントにラインメッセージを送信する 400通/月
     ├─ read_excel()              Excel読み込み
     ├─ find_upload_file()        テキスト→CSV変換
     ├─ selenium_upload()         アップロード（失敗なら例外）
@@ -303,13 +313,16 @@ def selenium_upload(df):
                     df.at[excel_idx, "処理結果"] = "エラー"
                     df.at[excel_idx, "エラー情報"] = str("登録件数　０件　アップロードファイルを確認してください")
                     write_log("登録件数　０件　アップロードファイルを確認してください")
+                    line_message(f"アップロード（{file_path}）{count}件 登録エラー")
                     Error_flag = -1
                 else:
                     df.at[excel_idx, "処理結果"] = "処理済み"
                     write_log("ステータスを「処理済み」にしました")
+                    line_message(f"アップロード（{file_path}）{count}件 登録完了")
 
             except Exception as e:
                 print_type(f"アップロード失敗: {file_path}, エラー: {e}")
+                line_message(f"アップロード失敗: {file_path}, エラー: {e}")
                 df.at[excel_idx, "処理結果"] = "エラー"
                 df.at[excel_idx, "エラー情報"] = str(f"エラー アップロード失敗: {e}")
                 Error_flag = -1
@@ -317,7 +330,7 @@ def selenium_upload(df):
 
 
         time.sleep(3)
-        print_type("アップロード完了:", file_path)
+        print_type(f"アップロード完了: {file_path}")
         write_log(f"アップロード完了: {file_path}")
         return True
 
@@ -438,6 +451,32 @@ def print_type(message):
     
     now = datetime.now().strftime("%H:%M:%S")
     print(f"[{now}] -- {message}\n")
+
+# ==============================
+#   LINE メッセージ出力
+# ==============================
+def line_message(message):
+    global ACCESS_TOKEN,USER_ID
+
+    # メッセージ
+    payload = {
+        "to": USER_ID,
+        "messages": [
+            {"type": "text", "text": message}
+        ]
+    }
+
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    url = "https://api.line.me/v2/bot/message/push"
+
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+
+    print(response.status_code)
+    print(response.text)
 
 
 if __name__ == "__main__":
