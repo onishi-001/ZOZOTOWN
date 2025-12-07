@@ -39,7 +39,7 @@ UPLOAD_DIR = "\List_Data"
 
 BASIC_USER = "zozotown-60"
 BASIC_PASS = "z02o-tenant-0ff1ce"
-FORM_USER  = "yasuda.k"
+FORM_USER  = "yasuda.k2"
 FORM_PASS  = ""
 PASSWORD_FILE = ""
 
@@ -55,11 +55,12 @@ STARTROW =  2     # EXcel 項目位置（日時	テキストファイ、、、�
 LOG_FILE = ""
 
 # 長期トークン LINE
-ACCESS_TOKEN = "5/OgaSQMXxP2DZJg6t7sTFSLlolggNd2zPjsWKd5xjosuYUXuudj7I8KZmZNukWd5jmC5P9+wk6MSojM00MhUrWisjCaufOT0nnf3+K18oixTx7C77I8YydA/0TPCRCx7lDQK9Y48zrpNIoIol+r5wdB04t89/1O/w1cDnyilFU="
+ACCESS_TOKEN_onishi = "5/OgaSQMXxP2DZJg6t7sTFSLlolggNd2zPjsWKd5xjosuYUXuudj7I8KZmZNukWd5jmC5P9+wk6MSojM00MhUrWisjCaufOT0nnf3+K18oixTx7C77I8YydA/0TPCRCx7lDQK9Y48zrpNIoIol+r5wdB04t89/1O/w1cDnyilFU="
+ACCESS_TOKEN = "HsMt2pdiuH7B1CpoKcmMoYBLP+Xu4rlURkM+jF5Z8IeFAPQNrKQB+M6KyvYFzWiAhvQWm3NDHi7GinjA3ZrGZFjRsoq7DTPPvPPZFOe+cx8NSG2npKFU/UsKBICIC+JNkY+WXys5w8x25MDMRSvvZgdB04t89/1O/w1cDnyilFU="
 
 # 送信先ユーザーID LINE
-USER_ID = "U615273c685475d75e9d789225d59cb5e"       # onishi
-
+USER_ID_onishi = "U615273c685475d75e9d789225d59cb5e"       # onishi
+USER_ID = "Ucb0869a3859ac49ac235e0d9efb6bc41"       # yasuda
 
 # ==============================
 # Main（拡張OK）
@@ -457,6 +458,7 @@ def print_type(message):
 # ==============================
 def line_message(message):
     global ACCESS_TOKEN,USER_ID
+    global ACCESS_TOKEN_onishi,USER_ID_onishi
 
     # メッセージ
     payload = {
@@ -471,12 +473,33 @@ def line_message(message):
         "Content-Type": "application/json"
     }
 
+    payload_onishi = {
+        "to": USER_ID_onishi,
+        "messages": [
+            {"type": "text", "text": message}
+        ]
+    }
+
+    headers_onishi = {
+        "Authorization": f"Bearer {ACCESS_TOKEN_onishi}",
+        "Content-Type": "application/json"
+    }
+
+
     url = "https://api.line.me/v2/bot/message/push"
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
 
     print(response.status_code)
     print(response.text)
+
+    # テスト
+    response = requests.post(url, headers=headers_onishi, data=json.dumps(payload_onishi))
+
+    print(response.status_code)
+    print(response.text)
+
+
 
 
 if __name__ == "__main__":
