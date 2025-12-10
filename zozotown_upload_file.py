@@ -1,4 +1,4 @@
-# zozo_auto_upload.py
+# zozotown_upload_file.py
 
 import pandas as pd
 import os
