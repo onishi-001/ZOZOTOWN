@@ -42,7 +42,7 @@ BASIC_PASS = "z02o-tenant-0ff1ce"
 FORM_USER  = "yasuda.k2"
 FORM_OLD_PASS  = ""
 FORM_NEW_PASS  = ""
-FORM_PASS_BASE  = "ADVewV9Bw1"
+FORM_PASS_BASE  = "Z0Z0zydADVewV9Bw1"
 PASSWORD_FILE = ""
 
 ZOZO_URL   = f"https://{BASIC_USER}:{BASIC_PASS}@to.zozo.jp/"
