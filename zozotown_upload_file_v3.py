@@ -30,6 +30,8 @@ from selenium.common.exceptions import (
     NoAlertPresentException
 )           # アラート対策
 
+from urllib.parse import quote      #2026.11.4
+
 # ==============================
 #  設定
 # ==============================
@@ -46,7 +48,12 @@ FORM_USER  = "yasuda.k2"
 FORM_PASS  = ""
 PASSWORD_FILE = ""
 
-ZOZO_URL   = f"https://{BASIC_USER}:{BASIC_PASS}@to.zozo.jp/"
+# 2026.11.4  ZOZO_URL   = f"https://{BASIC_USER}:{BASIC_PASS}@to.zozo.jp/"
+
+BASIC_USER_ENCODED = quote(BASIC_USER, safe="")     #2026.11.4
+BASIC_PASS_ENCODED = quote(BASIC_PASS, safe="")     #2026.11.4
+
+ZOZO_URL = f"https://{BASIC_USER_ENCODED}:{BASIC_PASS_ENCODED}@to.zozo.jp/"     #2026.11.4
 
 Up_list_name = []
 Up_list_index = []

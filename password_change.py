@@ -26,6 +26,7 @@ from datetime import datetime
 import requests
 import json
 
+from urllib.parse import quote      #2026.11.4
 
 # ==============================
 #  設定
@@ -45,7 +46,12 @@ FORM_NEW_PASS  = ""
 FORM_PASS_BASE  = "Z0Z0zydADVewV9Bw1"
 PASSWORD_FILE = ""
 
-ZOZO_URL   = f"https://{BASIC_USER}:{BASIC_PASS}@to.zozo.jp/"
+# 2026.11.4  ZOZO_URL   = f"https://{BASIC_USER}:{BASIC_PASS}@to.zozo.jp/"
+
+BASIC_USER_ENCODED = quote(BASIC_USER, safe="")     #2026.11.4
+BASIC_PASS_ENCODED = quote(BASIC_PASS, safe="")     #2026.11.4
+
+ZOZO_URL = f"https://{BASIC_USER_ENCODED}:{BASIC_PASS_ENCODED}@to.zozo.jp/"     #2026.11.4
 
 # 長期トークン LINE
 ACCESS_TOKEN_onishi = "5/OgaSQMXxP2DZJg6t7sTFSLlolggNd2zPjsWKd5xjosuYUXuudj7I8KZmZNukWd5jmC5P9+wk6MSojM00MhUrWisjCaufOT0nnf3+K18oixTx7C77I8YydA/0TPCRCx7lDQK9Y48zrpNIoIol+r5wdB04t89/1O/w1cDnyilFU="
